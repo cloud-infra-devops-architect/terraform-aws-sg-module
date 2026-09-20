@@ -385,7 +385,7 @@ jobs:
       id-token: write # Without id-token: write, GitHub won't generate the OIDC token needed for authentication.This is required for requesting the JWT token from GitHub IdP and exchanging it for AWS credentials using aws-actions/configure-aws-credentials action. AWS credentials required for Terraform Init to authenticate with private module registries and for Terraform Plan to authenticate with any AWS data sources or providers that require authentication.
     env:
       TF_IN_AUTOMATION: "true"
-      STRICT_OIDC_INTERNAL_PR: ${{ vars.STRICT_OIDC_INTERNAL_PR || 'false' }}
+      STRICT_OIDC_INTERNAL_PR: ${{ fromJSON(toJSON(vars)).STRICT_OIDC_INTERNAL_PR || 'false' }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7.0.1
