@@ -1,6 +1,10 @@
-provider "aws" {
-  region = var.aws_region
-}
+# ─── EXAMPLE: terraform-aws-vpc module usage ────────────────────────────────
+#
+# This example shows all required and optional inputs, and captures all outputs.
+# Run:
+#   terraform init
+#   terraform plan
+#   terraform apply
 
 module "app_security_group_self_enabled" {
   source = "../"
