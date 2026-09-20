@@ -10,7 +10,7 @@ variable "aws_region" {
 }
 
 variable "vpc_id" {
-  description = "VPC ID where the security group will be created."
+  description = "VPC ID where the security groups will be created."
   type        = string
 
   validation {

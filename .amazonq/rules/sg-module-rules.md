@@ -18,8 +18,10 @@ Required files:
 - `versions.tf`
 - `README.md`
 - `examples/README.md`
-- `examples/self-reference-enabled/main.tf`
-- `examples/self-reference-disabled/main.tf`
+- `examples/main.tf`
+- `examples/variables.tf`
+- `examples/outputs.tf`
+- `examples/versions.tf`
 
 ## Security
 

@@ -6,8 +6,10 @@ This folder contains runnable examples showing how to consume the child module f
 
 ## Example Structure
 
-- `self-reference-enabled/` → creates SG with `enable_self_reference = true`
-- `self-reference-disabled/` → creates SG with `enable_self_reference = false`
+- `main.tf` → contains both example module calls
+- `variables.tf` → shared inputs for both examples
+- `outputs.tf` → outputs for both examples
+- `versions.tf` → provider and Terraform version constraints
 
 ## Architecture Diagrams
 
@@ -42,19 +44,10 @@ flowchart LR
 
 ## How to Run
 
-### Self-Reference Enabled
+### Run Consolidated Examples
 
 ```bash
-cd examples/self-reference-enabled
-terraform init
-terraform plan -var='vpc_id=vpc-1234abcd'
-terraform apply -var='vpc_id=vpc-1234abcd'
-```
-
-### Self-Reference Disabled
-
-```bash
-cd examples/self-reference-disabled
+cd examples
 terraform init
 terraform plan -var='vpc_id=vpc-1234abcd'
 terraform apply -var='vpc_id=vpc-1234abcd'
@@ -62,7 +55,7 @@ terraform apply -var='vpc_id=vpc-1234abcd'
 
 ## Mandatory Inputs
 
-These inputs are required in both example folders.
+These inputs are required by the consolidated examples.
 
 | Name | Type | Description |
 |------|------|-------------|
@@ -70,7 +63,7 @@ These inputs are required in both example folders.
 
 ## Optional Inputs
 
-These optional inputs are available in both example folders.
+These optional inputs are available for the consolidated examples.
 
 | Name | Type | Default | Description |
 |------|------|---------|-------------|
@@ -78,12 +71,14 @@ These optional inputs are available in both example folders.
 
 ## Outputs
 
-Both examples return the same outputs.
+The consolidated examples return the following outputs.
 
 | Name | Description |
 |------|-------------|
-| `security_group_id` | ID of the security group created by the child module. |
-| `self_reference_rule_id` | Self-reference rule ID (`null` when self-reference is disabled). |
+| `self_enabled_security_group_id` | ID of security group from self-reference-enabled example. |
+| `self_enabled_self_reference_rule_id` | Self-reference rule ID from self-reference-enabled example. |
+| `self_disabled_security_group_id` | ID of security group from self-reference-disabled example. |
+| `self_disabled_self_reference_rule_id` | Self-reference rule ID from self-reference-disabled example (`null`). |
 
 ## Child Module Inputs Summary
 

@@ -291,7 +291,7 @@ jobs:
           fi
 
           # Rule: Required files must exist
-          for f in main.tf variables.tf outputs.tf versions.tf README.md examples/README.md examples/self-reference-enabled/main.tf examples/self-reference-disabled/main.tf; do
+          for f in main.tf variables.tf outputs.tf versions.tf README.md examples/README.md examples/main.tf examples/variables.tf examples/outputs.tf examples/versions.tf; do
             if [ ! -f "$f" ]; then
               echo "::error::Missing required module file: $f (.amazonq/rules/sg-module-rules.md#file-structure)"
               errors=$((errors + 1))
