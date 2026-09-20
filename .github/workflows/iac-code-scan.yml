@@ -45,9 +45,6 @@ on:
       ]
 env:
   tfcode_path: "."
-  # tfc_hostname: "app.terraform.io"
-  # tfc_organisation: "cloud-infra-dev"
-  # tfc_workspace: "testing-terraform-aws-modules"
 
 jobs:
   pre-commit-hooks:
@@ -276,39 +273,27 @@ jobs:
 
       - name: Verify Amazon Q rules file exists
         run: |
-          if [ ! -f ".amazonq/rules/vpc-module-rules.md" ]; then
-            echo "::error::Missing required file: .amazonq/rules/vpc-module-rules.md"
+          if [ ! -f ".amazonq/rules/sg-module-rules.md" ]; then
+            echo "::error::Missing required file: .amazonq/rules/sg-module-rules.md"
             exit 1
           fi
-          echo "✅ Amazon Q rules file found: .amazonq/rules/vpc-module-rules.md"
+          echo "✅ Amazon Q rules file found: .amazonq/rules/sg-module-rules.md"
 
       - name: Validate rules against module conventions
         run: |
           set -e
           errors=0
 
-          # Rule: map_public_ip_on_launch must be false
-          if grep -rn "map_public_ip_on_launch\s*=\s*true" --include="*.tf" .; then
-            echo "::error::map_public_ip_on_launch must be false on all subnets (.amazonq/rules/vpc-module-rules.md#security)"
-            errors=$((errors + 1))
-          fi
-
-          # Rule: No hardcoded SNS ARNs
-          if grep -rn '"arn:aws:sns:' --include="*.tf" .; then
-            echo "::error::Hardcoded SNS ARNs detected — use var.cloudwatch_alarm_actions (.amazonq/rules/vpc-module-rules.md#cloudwatch-alarms)"
-            errors=$((errors + 1))
-          fi
-
-          # Rule: EIP domain must use 'domain = "vpc"' not deprecated 'vpc = true'
-          if grep -rn 'vpc\s*=\s*true' --include="*.tf" .; then
-            echo "::error::Deprecated aws_eip attribute 'vpc = true' detected — use 'domain = \"vpc\"' (.amazonq/rules/vpc-module-rules.md#what-to-avoid)"
+          # Rule: No hardcoded access keys
+          if grep -rn "aws_access_key_id\|aws_secret_access_key" --include="*.tf" .; then
+            echo "::error::Hardcoded AWS credentials detected (.amazonq/rules/sg-module-rules.md#what-to-avoid)"
             errors=$((errors + 1))
           fi
 
           # Rule: Required files must exist
-          for f in main.tf variables.tf outputs.tf versions.tf flow_logs.tf cloudwatch_alarms.tf examples/main.tf; do
+          for f in main.tf variables.tf outputs.tf versions.tf README.md examples/README.md examples/self-reference-enabled/main.tf examples/self-reference-disabled/main.tf; do
             if [ ! -f "$f" ]; then
-              echo "::error::Missing required module file: $f (.amazonq/rules/vpc-module-rules.md#file-structure)"
+              echo "::error::Missing required module file: $f (.amazonq/rules/sg-module-rules.md#file-structure)"
               errors=$((errors + 1))
             fi
           done
@@ -317,17 +302,17 @@ jobs:
           if grep -n "^variable" variables.tf | grep -v "description" > /dev/null 2>&1; then
             missing=$(awk '/^variable/{name=$0} !/description/ && name{print name; name=""}' variables.tf)
             if [ -n "$missing" ]; then
-              echo "::warning::Some variables may be missing descriptions — verify variables.tf (.amazonq/rules/vpc-module-rules.md#variable-definitions)"
+              echo "::warning::Some variables may be missing descriptions — verify variables.tf (.amazonq/rules/sg-module-rules.md#variable-definitions)"
             fi
           fi
 
           # Rule: Outputs must have descriptions
           if grep -A1 "^output" outputs.tf | grep -v "description" | grep -v "^--$" | grep "^output" > /dev/null 2>&1; then
-            echo "::warning::Some outputs may be missing descriptions — verify outputs.tf (.amazonq/rules/vpc-module-rules.md#outputs)"
+            echo "::warning::Some outputs may be missing descriptions — verify outputs.tf (.amazonq/rules/sg-module-rules.md#outputs)"
           fi
 
           if [ $errors -gt 0 ]; then
-            echo "::error::Amazon Q rules check failed with $errors violation(s). See .amazonq/rules/vpc-module-rules.md for details."
+            echo "::error::Amazon Q rules check failed with $errors violation(s). See .amazonq/rules/sg-module-rules.md for details."
             exit 1
           fi
 
