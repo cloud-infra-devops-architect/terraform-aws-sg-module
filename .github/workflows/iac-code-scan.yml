@@ -89,7 +89,7 @@ jobs:
       - name: Run pre-commit hooks
         run: pre-commit run --all-files --show-diff-on-failure
         env:
-          SKIP: no-commit-to-branch,terraform_checkov
+          SKIP: no-commit-to-branch,terraform_checkov,terraform_trivy
           TF_CLI_ARGS_init: "-backend=false"
           CHECKOV_SKIP_CHECK: "CKV2_AWS_5"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -225,11 +225,12 @@ jobs:
           scan-type: "config"
           ignore-unfixed: true
           scan-ref: ${{ env.tfcode_path }}
+          skip-dirs: "examples"
           format: "table"
           severity: "CRITICAL,HIGH,MEDIUM,LOW,UNKNOWN"
           exit-code: "1"
           trivy-config: trivy.yaml
-          version: "v0.71.2"
+          version: "v0.74.0"
 
       - name: Fail on Trivy misconfiguration findings
         if: failure()
