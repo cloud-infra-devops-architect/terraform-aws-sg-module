@@ -30,7 +30,7 @@ flowchart LR
 ```mermaid
 flowchart LR
     SG["🛡️ Security Group"]
-    SG -->|self = true (optional)| SG
+    SG -->|self reference optional| SG
 ```
 
 ## Usage
