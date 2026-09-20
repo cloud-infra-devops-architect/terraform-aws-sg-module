@@ -3,7 +3,7 @@ provider "aws" {
 }
 
 module "app_security_group_self_enabled" {
-  source = ".."
+  source = "../"
 
   name        = "example-app-sg-self-enabled"
   description = "Example SG with self-referencing rule enabled"
@@ -64,7 +64,7 @@ module "app_security_group_self_enabled" {
 }
 
 module "app_security_group_self_disabled" {
-  source = ".."
+  source = "../"
 
   name        = "example-app-sg-self-disabled"
   description = "Example SG with self-referencing rule disabled"
