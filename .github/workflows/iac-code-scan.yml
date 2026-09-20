@@ -406,6 +406,17 @@ jobs:
           echo "::warning::OIDC role assumption failed (sts:AssumeRoleWithWebIdentity)."
           echo "::warning::Skipping terraform plan in this run. Verify AWS role trust policy allows this repository/event context."
 
+      - name: Debug OIDC subject claim
+        if: steps.aws_credentials.outcome == 'failure'
+        run: |
+          set -euo pipefail
+          oidc_response=$(curl -sS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=sts.amazonaws.com")
+          oidc_jwt=$(echo "$oidc_response" | jq -r '.value')
+          jwt_payload=$(echo "$oidc_jwt" | cut -d'.' -f2 | tr '_-' '/+' | awk '{l=length($0)%4; if(l==2) print $0 "=="; else if(l==3) print $0 "="; else print $0}' | base64 -d)
+
+          echo "OIDC claim check (for IAM trust policy):"
+          echo "$jwt_payload" | jq -r '. | "aud=\(.aud)\nsub=\(.sub)\nrepository=\(.repository)\nevent_name=\(.event_name)"'
+
       - name: Enforce strict OIDC mode for internal PRs
         if: env.STRICT_OIDC_INTERNAL_PR == 'true' && steps.aws_credentials.outcome == 'failure' && github.event.pull_request.head.repo.full_name == github.repository
         run: |
