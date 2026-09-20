@@ -397,7 +397,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v6.3.0
         with:
             role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-            role-session-name: ${{ secrets.ROLE_SESSION_NAME}}
+            role-session-name: ${{ secrets.ROLE_SESSION_NAME }}
             aws-region: ${{ secrets.AWS_REGION }}
 
       - name: AWS OIDC fallback notice
