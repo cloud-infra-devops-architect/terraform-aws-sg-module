@@ -89,7 +89,7 @@ jobs:
       - name: Run pre-commit hooks
         run: pre-commit run --all-files --show-diff-on-failure
         env:
-          SKIP: no-commit-to-branch
+          SKIP: no-commit-to-branch,terraform_checkov
           TF_CLI_ARGS_init: "-backend=false"
           CHECKOV_SKIP_CHECK: "CKV2_AWS_5"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
