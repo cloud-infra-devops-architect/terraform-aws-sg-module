@@ -4,7 +4,7 @@ variable "region" {
   default     = "us-east-1"
 
   validation {
-    condition     = length(trimspace(var.aws_region)) > 0
+    condition     = length(trimspace(var.region)) > 0
     error_message = "aws_region must not be empty."
   }
 }
