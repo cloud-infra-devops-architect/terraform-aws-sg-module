@@ -1,28 +1,10 @@
+# This reusable module creates a security group that is attached by consumer resources/modules.
 resource "aws_security_group" "this" {
   name                   = var.name
   description            = var.description
   vpc_id                 = var.vpc_id
   revoke_rules_on_delete = var.revoke_rules_on_delete
-
-  tags = var.tags
-}
-
-locals {
-  ingress_ipv4_rules = {
-    for index, rule in var.ingress_ipv4_rules : index => rule
-  }
-
-  ingress_ipv6_rules = {
-    for index, rule in var.ingress_ipv6_rules : index => rule
-  }
-
-  egress_ipv4_rules = {
-    for index, rule in var.egress_ipv4_rules : index => rule
-  }
-
-  egress_ipv6_rules = {
-    for index, rule in var.egress_ipv6_rules : index => rule
-  }
+  tags                   = var.tags
 }
 
 resource "aws_security_group_rule" "ingress_ipv4" {
