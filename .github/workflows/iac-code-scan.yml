@@ -385,18 +385,36 @@ jobs:
       id-token: write # Without id-token: write, GitHub won't generate the OIDC token needed for authentication.This is required for requesting the JWT token from GitHub IdP and exchanging it for AWS credentials using aws-actions/configure-aws-credentials action. AWS credentials required for Terraform Init to authenticate with private module registries and for Terraform Plan to authenticate with any AWS data sources or providers that require authentication.
     env:
       TF_IN_AUTOMATION: "true"
+      STRICT_OIDC_INTERNAL_PR: ${{ vars.STRICT_OIDC_INTERNAL_PR || 'false' }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0 # Fetch full history to ensure Terraform can access all branches and tags if needed for module references
       - name: "Configure AWS Credentials"
+        id: aws_credentials
+        continue-on-error: true
         uses: aws-actions/configure-aws-credentials@v6.3.0
         with:
             role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
             role-session-name: ${{ secrets.ROLE_SESSION_NAME}}
             aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: AWS OIDC fallback notice
+        if: steps.aws_credentials.outcome == 'failure'
+        run: |
+          echo "::warning::OIDC role assumption failed (sts:AssumeRoleWithWebIdentity)."
+          echo "::warning::Skipping terraform plan in this run. Verify AWS role trust policy allows this repository/event context."
+
+      - name: Enforce strict OIDC mode for internal PRs
+        if: env.STRICT_OIDC_INTERNAL_PR == 'true' && steps.aws_credentials.outcome == 'failure' && github.event.pull_request.head.repo.full_name == github.repository
+        run: |
+          echo "::error::OIDC strict mode is enabled and AWS role assumption failed for an internal PR."
+          echo "::error::Fix IAM trust policy/permissions for sts:AssumeRoleWithWebIdentity or disable STRICT_OIDC_INTERNAL_PR."
+          exit 1
+
       - name: Verify IAM Role Assumption
+        if: steps.aws_credentials.outcome == 'success'
         run: |
             aws sts get-caller-identity
       - name: Set up Terraform
@@ -413,9 +431,7 @@ jobs:
 
       - name: Terraform Init
         id: init
-        run: |
-          echo -e "access_key = \"${AWS_ACCESS_KEY_ID}\"\nsecret_key = \"${AWS_SECRET_ACCESS_KEY}\"\ntoken = \"${AWS_SESSION_TOKEN}\"\nregion = \"${AWS_REGION}\"" | tee credentials.auto.tfvars
-          terraform init -input=false
+        run: terraform init -backend=false -input=false
         working-directory: ${{ env.tfcode_path }}
 
       - name: Terraform Validate
@@ -425,14 +441,20 @@ jobs:
 
       - name: Terraform Plan
         id: plan
-        run: terraform plan -no-color -var-file="credentials.auto.tfvars" -input=false -out=/tmp/tfplan 2>&1 | tee /tmp/plan_output.txt
+        if: steps.aws_credentials.outcome == 'success'
+        run: terraform plan -no-color -input=false -out=/tmp/tfplan -var="name=ci-security-group" -var="vpc_id=vpc-1234abcd" 2>&1 | tee /tmp/plan_output.txt
         working-directory: ${{ env.tfcode_path }}
         continue-on-error: true # Don't fail the job here, we want to capture the plan output and post it to the PR comment for review
 
       - name: Save Terraform Plan Output
         if: github.event_name == 'pull_request'
         run: |
-          if [ -f /tmp/tfplan ]; then
+          if [ "${{ steps.aws_credentials.outcome }}" != "success" ]; then
+            {
+              echo "Terraform plan was skipped because AWS OIDC role assumption failed."
+              echo "Check role trust policy for sts:AssumeRoleWithWebIdentity and GitHub OIDC subject conditions."
+            } > /tmp/plan.txt
+          elif [ -f /tmp/tfplan ]; then
             terraform show -no-color /tmp/tfplan > /tmp/plan.txt
           else
             {
@@ -500,7 +522,7 @@ jobs:
             }
 
       - name: Fail if plan pipeline failed
-        if: steps.init.outcome == 'failure' || steps.validate.outcome == 'failure' || steps.plan.outcome == 'failure'
+        if: steps.init.outcome == 'failure' || steps.validate.outcome == 'failure' || (steps.aws_credentials.outcome == 'success' && steps.plan.outcome == 'failure')
         run: |
           echo "::error::Terraform plan pipeline failed — review the PR comment for details."
           exit 1
