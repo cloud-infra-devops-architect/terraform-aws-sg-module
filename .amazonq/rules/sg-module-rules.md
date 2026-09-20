@@ -54,4 +54,3 @@ Required files:
 
 - Hardcoded secrets, credentials, or keys.
 - VPC-module-only rules and checks (for example `map_public_ip_on_launch`, `flow_logs.tf`, or EIP `domain` checks), since they are not applicable to security group modules.
-
