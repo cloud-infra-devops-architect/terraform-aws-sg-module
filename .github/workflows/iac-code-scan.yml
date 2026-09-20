@@ -396,9 +396,9 @@ jobs:
         continue-on-error: true
         uses: aws-actions/configure-aws-credentials@v6.3.0
         with:
-            role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-            role-session-name: ${{ secrets.ROLE_SESSION_NAME}}
-            aws-region: ${{ secrets.AWS_REGION }}
+            role-to-assume: "arn:aws:iam::511871943725:role/gha-oidc-assume-role"
+            role-session-name: "gha-oidc-assume-role-session"
+            aws-region: "us-east-1"
 
       - name: AWS OIDC fallback notice
         if: steps.aws_credentials.outcome == 'failure'
