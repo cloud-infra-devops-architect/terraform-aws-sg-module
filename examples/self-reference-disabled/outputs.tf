@@ -7,4 +7,3 @@ output "self_reference_rule_id" {
   description = "Self-reference rule ID from the module (null when disabled)."
   value       = module.app_security_group.self_reference_rule_id
 }
-

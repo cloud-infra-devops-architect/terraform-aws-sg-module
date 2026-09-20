@@ -84,4 +84,3 @@ resource "aws_security_group_rule" "self_reference" {
   protocol          = var.self_reference_protocol
   self              = true
 }
-

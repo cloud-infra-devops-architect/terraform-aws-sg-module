@@ -42,4 +42,3 @@ output "self_reference_rule_id" {
   description = "Self-reference rule ID when enabled, otherwise null."
   value       = var.enable_self_reference ? aws_security_group_rule.self_reference[0].id : null
 }
-

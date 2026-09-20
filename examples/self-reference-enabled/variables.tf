@@ -18,4 +18,3 @@ variable "vpc_id" {
     error_message = "vpc_id must look like vpc-xxxxxxxx."
   }
 }
-

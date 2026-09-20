@@ -267,4 +267,3 @@ variable "self_reference_to_port" {
     error_message = "For self-reference, ports must be 0..65535. If protocol is -1 then both ports must be 0; otherwise from_port must be <= to_port."
   }
 }
-

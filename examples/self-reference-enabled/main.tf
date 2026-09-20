@@ -62,4 +62,3 @@ module "app_security_group" {
     Example     = "self-reference-enabled"
   }
 }
-

@@ -93,4 +93,3 @@ The child module at `../` supports:
 - Validated rule protocol, port ranges, and CIDR formats
 
 For the complete list, see the root module docs in `README.md`.
-
