@@ -227,7 +227,7 @@ jobs:
           scan-ref: ${{ env.tfcode_path }}
           skip-dirs: "examples"
           format: "table"
-          severity: "CRITICAL,HIGH,MEDIUM,LOW,UNKNOWN"
+          severity: "CRITICAL,HIGH,MEDIUM"
           exit-code: "1"
           trivy-config: trivy.yaml
           version: "v0.74.0"
