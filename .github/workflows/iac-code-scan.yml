@@ -391,7 +391,7 @@ jobs:
         uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0 # Fetch full history to ensure Terraform can access all branches and tags if needed for module references
-      
+
       - name: "Configure AWS Credentials"
         id: aws_credentials
         continue-on-error: true
